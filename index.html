@@ -12,24 +12,26 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { width: 100%; height: 100%; overflow: hidden; position: fixed; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            /* Use the uploaded image public URL so it loads reliably in the Playground */
+            background: url('https://cdn.abacus.ai/images/05fbd73e-cd87-4fb9-a3b9-e0b9ee362ddc.png') center / cover no-repeat fixed;
             display: flex; justify-content: center; align-items: center; color: white; touch-action: manipulation;
         }
         .game-container {
-            background: rgba(0, 0, 0, 0.7); border-radius: 15px; padding: 15px; box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+            background: transparent; /* allow image to show through fully */
+            border-radius: 15px; padding: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.25);
             width: 100%; max-width: 600px; height: 100vh; max-height: 100vh; display: flex; flex-direction: column; overflow-y: auto;
         }
-        .paytable { background: rgba(255, 215, 0, 0.1); border: 2px solid #ffd700; border-radius: 8px; padding: 8px; margin-bottom: 10px; font-size: clamp(0.65em, 2.5vw, 0.85em); }
-        .paytable-row { display: flex; justify-content: space-between; padding: 3px 8px; border-bottom: 1px solid rgba(255, 215, 0, 0.3); }
+        .paytable { background: rgba(255, 215, 0, 0.08); border: 2px solid rgba(255,215,0,0.95); border-radius: 8px; padding: 8px; margin-bottom: 10px; font-size: clamp(0.65em, 2.5vw, 0.85em); }
+        .paytable-row { display: flex; justify-content: space-between; padding: 3px 8px; border-bottom: 1px solid rgba(255, 215, 0, 0.2); }
         .paytable-row:last-child { border-bottom: none; }
-        .paytable-row.highlight { background: rgba(255, 215, 0, 0.3); font-weight: bold; animation: pulse 0.5s ease-in-out; }
+        .paytable-row.highlight { background: rgba(255, 215, 0, 0.35); font-weight: bold; animation: pulse 0.5s ease-in-out; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .cards-container { display: flex; justify-content: center; gap: 5px; margin: 15px 0; flex-wrap: nowrap; padding: 0 5px; }
         .card-wrapper { position: relative; flex: 1; max-width: 110px; }
-        .card { width: 100%; aspect-ratio: 5/7; background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.08s ease, box-shadow 0.12s ease; position: relative; overflow: visible; display: flex; flex-direction: column; justify-content: space-between; padding: 10px; will-change: transform; }
+        .card { width: 100%; aspect-ratio: 5/7; background: rgba(255,255,255,0.95); border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.08s ease, box-shadow 0.12s ease; position: relative; overflow: visible; display: flex; flex-direction: column; justify-content: space-between; padding: 10px; will-change: transform; }
         .card:active { transform: translateY(-2px) scale(0.99); }
         .card.held { transform: translateY(-15px); box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
         .card.red { color: #dc143c !important; } .card.black { color: #000 !important; }
@@ -41,13 +43,13 @@
         .info-panel { display: flex; justify-content: space-around; margin: 15px 0; font-size: clamp(1em, 4vw, 1.3em); }
         .info-item { text-align: center; }
         .info-label { color: #ffd700; font-size: 0.7em; }
-        .info-value { font-weight: bold; font-size: 1.2em; }
+        .info-value { font-weight: bold; font-size: 1.2em; text-shadow: 0 0 6px rgba(0,0,0,0.6); }
         .controls { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
         .bet-controls { display: flex; align-items: center; gap: 8px; }
         button { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); border: none; padding: 12px 25px; font-size: clamp(0.9em, 3.5vw, 1.1em); font-weight: bold; border-radius: 10px; cursor: pointer; color: #000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 80ms ease, box-shadow 120ms ease; touch-action: manipulation; user-select: none; will-change: transform; }
         button:active { transform: scale(0.97); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .message { text-align: center; font-size: clamp(0.9em, 3.5vw, 1.2em); color: #ffd700; margin: 10px 0; min-height: 30px; font-weight: bold; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .message { text-align: center; font-size: clamp(0.9em, 3.5vw, 1.2em); color: #ffd700; margin: 10px 0; min-height: 30px; font-weight: bold; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
         .card-back { background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%); display: flex; align-items: center; justify-content: center; font-size: 2.5em; color: white; padding: 0; overflow: hidden; }
         @keyframes dealCard { 0% { transform: translateY(-50px) rotateY(180deg); opacity: 0; } 100% { transform: translateY(0) rotateY(0); opacity: 1; } }
         .card.dealing { animation: dealCard 0.5s ease-out; }
@@ -337,8 +339,8 @@
       // ========== BET CONTROLS: single-tap only ==========
       const betMinusEl = document.getElementById('betMinus');
       const betPlusEl  = document.getElementById('betPlus');
-      const betDisplay = document.getElementById('betDisplay');
-      function updateBetDisplay() { betDisplay.textContent = bet; }
+      const betDisplayEl = document.getElementById('betDisplay');
+      function updateBetDisplay() { betDisplayEl.textContent = bet; }
 
       // Remove any legacy handlers to avoid double triggers
       betMinusEl.onclick = null;
